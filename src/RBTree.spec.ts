@@ -5,12 +5,19 @@ class KeyThing {
     constructor(public value: number) {
         // Do nothing;
     }
+    toString(): string {
+        return `KeyThing(${this.value})`;
+    }
     static LOWEST = new KeyThing(Number.MIN_SAFE_INTEGER);
+    static HIGHEST = new KeyThing(Number.MAX_SAFE_INTEGER);
 }
 
 class ValThing {
     constructor(public data: number) {
         // Do nothing;
+    }
+    toString(): string {
+        return `ValThing(${this.data})`;
     }
     static random(): ValThing {
         return new ValThing(Math.random());
@@ -55,7 +62,7 @@ function expectBlue<V>(node: RBNode<KeyThing, V>, key: number): void {
 
 describe("RBTree", function () {
     describe("constructor", function () {
-        const tree = new RBTree<KeyThing, ValThing>(KeyThing.LOWEST, ValThing.NIL, keycmp);
+        const tree = new RBTree<KeyThing, ValThing>(KeyThing.LOWEST, KeyThing.HIGHEST, ValThing.NIL, keycmp);
         const z = tree.z;
         // const head = tree.head;
         it("should create the dummy node", function () {
@@ -79,7 +86,7 @@ describe("RBTree", function () {
     });
     describe("insert", function () {
         it("should update the count of nodes inserted", function () {
-            const tree = new RBTree<KeyThing, ValThing>(KeyThing.LOWEST, ValThing.NIL, keycmp);
+            const tree = new RBTree<KeyThing, ValThing>(KeyThing.LOWEST, KeyThing.HIGHEST, ValThing.NIL, keycmp);
             for (let i = 1; i <= 10; i++) {
                 tree.insert(new KeyThing(i), ValThing.random());
                 expect(tree.N).toBe(i);
@@ -87,7 +94,7 @@ describe("RBTree", function () {
         });
         it("should not allow key = head key", function () {
             const lowKey = 100;
-            const tree = new RBTree<KeyThing, ValThing>(new KeyThing(lowKey), ValThing.NIL, keycmp);
+            const tree = new RBTree<KeyThing, ValThing>(new KeyThing(lowKey), KeyThing.HIGHEST, ValThing.NIL, keycmp);
             tree.insert(new KeyThing(lowKey + 1), ValThing.random());
             expect(tree.N).toBe(1);
             expect(function () {
@@ -96,7 +103,7 @@ describe("RBTree", function () {
         });
         it("should not allow key < head key", function () {
             const lowKey = new KeyThing(100);
-            const tree = new RBTree<KeyThing, ValThing>(lowKey, ValThing.NIL, keycmp);
+            const tree = new RBTree<KeyThing, ValThing>(lowKey, KeyThing.HIGHEST, ValThing.NIL, keycmp);
             tree.insert(new KeyThing(lowKey.value + 1), ValThing.random());
             expect(tree.N).toBe(1);
             expect(function () {
@@ -105,7 +112,7 @@ describe("RBTree", function () {
         });
         describe("one node permutation", function () {
             it('[1] should insert to root', function () {
-                const tree = new RBTree<KeyThing, ValThing>(KeyThing.LOWEST, ValThing.NIL, keycmp);
+                const tree = new RBTree<KeyThing, ValThing>(KeyThing.LOWEST, KeyThing.HIGHEST, ValThing.NIL, keycmp);
                 tree.insert(new KeyThing(1), new ValThing(10));
                 expect(tree.root.key.value).toBe(1);
                 expect(tree.root.value.data).toBe(10);
@@ -114,7 +121,7 @@ describe("RBTree", function () {
         });
         describe("two node permutations", function () {
             it('[1, 2] inserts 1 to root and 2 to right', function () {
-                const tree = new RBTree<KeyThing, number>(new KeyThing(0), -1, keycmp);
+                const tree = new RBTree<KeyThing, number>(KeyThing.LOWEST, KeyThing.HIGHEST, -1, keycmp);
                 const z = tree.z;
                 tree.insert(new KeyThing(1), 10);
                 tree.insert(new KeyThing(2), 20);
@@ -125,7 +132,7 @@ describe("RBTree", function () {
                 expect(red(tree.root.r)).toBe(true);
             });
             it('[2, 1] inserts 2 to root and 1 to left', function () {
-                const tree = new RBTree<KeyThing, number>(new KeyThing(0), -1, keycmp);
+                const tree = new RBTree<KeyThing, number>(KeyThing.LOWEST, KeyThing.HIGHEST, -1, keycmp);
                 const z = tree.z;
                 tree.insert(new KeyThing(2), 20);
                 tree.insert(new KeyThing(1), 10);
@@ -138,7 +145,7 @@ describe("RBTree", function () {
         });
         describe("three node permutations", function () {
             it('[2, 1, 3] inserts balanced', function () {
-                const tree = new RBTree<KeyThing, number>(new KeyThing(0), -1, keycmp);
+                const tree = new RBTree<KeyThing, number>(KeyThing.LOWEST, KeyThing.HIGHEST, -1, keycmp);
                 tree.insert(new KeyThing(2), 20);
                 tree.insert(new KeyThing(1), 10);
                 tree.insert(new KeyThing(3), 30);
@@ -147,7 +154,7 @@ describe("RBTree", function () {
                 expect(red(tree.root.r)).toBe(true);
             });
             it('[2, 3, 1] inserts balanced', function () {
-                const tree = new RBTree<KeyThing, number>(new KeyThing(0), -1, keycmp);
+                const tree = new RBTree<KeyThing, number>(KeyThing.LOWEST, KeyThing.HIGHEST, -1, keycmp);
                 tree.insert(new KeyThing(2), 20);
                 tree.insert(new KeyThing(3), 30);
                 tree.insert(new KeyThing(1), 10);
@@ -156,7 +163,7 @@ describe("RBTree", function () {
                 expect(red(tree.root.r)).toBe(true);
             });
             it('[1, 2, 3] inserts balanced', function () {
-                const tree = new RBTree<KeyThing, number>(new KeyThing(0), -1, keycmp);
+                const tree = new RBTree<KeyThing, number>(KeyThing.LOWEST, KeyThing.HIGHEST, -1, keycmp);
                 tree.insert(new KeyThing(1), 10);
                 tree.insert(new KeyThing(2), 20);
                 tree.insert(new KeyThing(3), 30);
@@ -165,7 +172,7 @@ describe("RBTree", function () {
                 expect(black(tree.root.r)).toBe(true);
             });
             it('[1, 3, 2] inserts balanced', function () {
-                const tree = new RBTree<KeyThing, number>(new KeyThing(0), -1, keycmp);
+                const tree = new RBTree<KeyThing, number>(KeyThing.LOWEST, KeyThing.HIGHEST, -1, keycmp);
                 tree.insert(new KeyThing(1), 10);
                 tree.insert(new KeyThing(3), 30);
                 tree.insert(new KeyThing(2), 20);
@@ -174,7 +181,7 @@ describe("RBTree", function () {
                 expect(black(tree.root.r)).toBe(true);
             });
             it('[3, 1, 2] inserts balanced', function () {
-                const tree = new RBTree<KeyThing, number>(new KeyThing(0), -1, keycmp);
+                const tree = new RBTree<KeyThing, number>(KeyThing.LOWEST, KeyThing.HIGHEST, -1, keycmp);
                 tree.insert(new KeyThing(3), 30);
                 tree.insert(new KeyThing(1), 10);
                 tree.insert(new KeyThing(2), 20);
@@ -183,7 +190,7 @@ describe("RBTree", function () {
                 expect(black(tree.root.r)).toBe(true);
             });
             it('[3, 2, 1] inserts balanced', function () {
-                const tree = new RBTree<KeyThing, number>(new KeyThing(0), -1, keycmp);
+                const tree = new RBTree<KeyThing, number>(KeyThing.LOWEST, KeyThing.HIGHEST, -1, keycmp);
                 tree.insert(new KeyThing(3), 30);
                 tree.insert(new KeyThing(2), 20);
                 tree.insert(new KeyThing(1), 10);
@@ -194,7 +201,7 @@ describe("RBTree", function () {
         });
         describe("four node permutations", function () {
             it('[4, 2, 1, 3]', function () {
-                const tree = new RBTree<KeyThing, number>(new KeyThing(0), -1, keycmp);
+                const tree = new RBTree<KeyThing, number>(KeyThing.LOWEST, KeyThing.HIGHEST, -1, keycmp);
                 tree.insert(new KeyThing(4), 40);
                 tree.insert(new KeyThing(2), 20);
                 tree.insert(new KeyThing(1), 10);
@@ -206,7 +213,7 @@ describe("RBTree", function () {
                 expectRed(tree.root.r.l, 3);
             });
             it('[4, 2, 3, 1]', function () {
-                const tree = new RBTree<KeyThing, number>(new KeyThing(0), -1, keycmp);
+                const tree = new RBTree<KeyThing, number>(KeyThing.LOWEST, KeyThing.HIGHEST, -1, keycmp);
                 tree.insert(new KeyThing(4), 40);
                 tree.insert(new KeyThing(2), 20);
                 tree.insert(new KeyThing(3), 30);
@@ -218,7 +225,7 @@ describe("RBTree", function () {
                 expectRed(tree.root.l.l, 1);
             });
             it('[4, 3, 2, 1]', function () {
-                const tree = new RBTree<KeyThing, number>(new KeyThing(0), -1, keycmp);
+                const tree = new RBTree<KeyThing, number>(KeyThing.LOWEST, KeyThing.HIGHEST, -1, keycmp);
                 tree.insert(new KeyThing(4), 40);
                 tree.insert(new KeyThing(3), 30);
                 tree.insert(new KeyThing(2), 20);
@@ -230,7 +237,7 @@ describe("RBTree", function () {
                 expectRed(tree.root.l.l, 1);
             });
             it('[3, 4, 2, 1]', function () {
-                const tree = new RBTree<KeyThing, number>(new KeyThing(0), -1, keycmp);
+                const tree = new RBTree<KeyThing, number>(KeyThing.LOWEST, KeyThing.HIGHEST, -1, keycmp);
                 tree.insert(new KeyThing(3), 30);
                 tree.insert(new KeyThing(4), 40);
                 tree.insert(new KeyThing(2), 20);
@@ -244,7 +251,7 @@ describe("RBTree", function () {
         });
         describe("misc", function () {
             it('[50, 40, 30, 15, 20, 10]', function () {
-                const tree = new RBTree<KeyThing, number>(new KeyThing(0), -1, keycmp);
+                const tree = new RBTree<KeyThing, number>(KeyThing.LOWEST, KeyThing.HIGHEST, -1, keycmp);
                 tree.insert(new KeyThing(50), 500);
                 tree.insert(new KeyThing(40), 400);
                 tree.insert(new KeyThing(30), 300);
@@ -264,7 +271,7 @@ describe("RBTree", function () {
     describe("search", function () {
         it("should find an internal node", function () {
             const zValue = -1;
-            const tree = new RBTree<KeyThing, number>(new KeyThing(0), zValue, keycmp);
+            const tree = new RBTree<KeyThing, number>(KeyThing.LOWEST, KeyThing.HIGHEST, zValue, keycmp);
             const value = Math.random();
             tree.insert(new KeyThing(23), value);
             expect(tree.search(new KeyThing(23))).toBe(value);
@@ -275,7 +282,7 @@ describe("RBTree", function () {
     describe("remove", function () {
         it("should find an internal node", function () {
             const zValue = -1;
-            const tree = new RBTree<KeyThing, number>(new KeyThing(0), zValue, keycmp);
+            const tree = new RBTree<KeyThing, number>(KeyThing.LOWEST, KeyThing.HIGHEST, zValue, keycmp);
             tree.insert(new KeyThing(4), 40);
             tree.insert(new KeyThing(2), 20);
             tree.insert(new KeyThing(6), 60);
@@ -297,6 +304,48 @@ describe("RBTree", function () {
             // expect(tree.root.key).toBe(5);
         });
     });
+    describe("glb - Greatest Lower Bound", function () {
+        it("should return the next lowest key", function () {
+            const tree = new RBTree<KeyThing, ValThing>(KeyThing.LOWEST, KeyThing.HIGHEST, ValThing.NIL, keycmp);
+
+            tree.insert(new KeyThing(2), ValThing.random());
+            tree.insert(new KeyThing(3), ValThing.random());
+            tree.insert(new KeyThing(5), ValThing.random());
+            tree.insert(new KeyThing(8), ValThing.random());
+
+            expect(tree.glb(new KeyThing(0)).value).toBe(KeyThing.LOWEST.value);
+            expect(tree.glb(new KeyThing(1)).value).toBe(KeyThing.LOWEST.value);
+            expect(tree.glb(new KeyThing(2)).value).toBe(2);
+            expect(tree.glb(new KeyThing(3)).value).toBe(3);
+            expect(tree.glb(new KeyThing(4)).value).toBe(3);
+            expect(tree.glb(new KeyThing(5)).value).toBe(5);
+            expect(tree.glb(new KeyThing(6)).value).toBe(5);
+            expect(tree.glb(new KeyThing(7)).value).toBe(5);
+            expect(tree.glb(new KeyThing(8)).value).toBe(8);
+            expect(tree.glb(new KeyThing(9)).value).toBe(8);
+        });
+    });
+    describe("lub - Least Upper Bound", function () {
+        it("should return the next highest key", function () {
+            const tree = new RBTree<KeyThing, ValThing>(KeyThing.LOWEST, KeyThing.HIGHEST, ValThing.NIL, keycmp);
+
+            tree.insert(new KeyThing(2), ValThing.random());
+            tree.insert(new KeyThing(3), ValThing.random());
+            tree.insert(new KeyThing(5), ValThing.random());
+            tree.insert(new KeyThing(8), ValThing.random());
+
+            expect(tree.lub(new KeyThing(0)).value).toBe(2);
+            expect(tree.lub(new KeyThing(1)).value).toBe(2);
+            expect(tree.lub(new KeyThing(2)).value).toBe(2);
+            expect(tree.lub(new KeyThing(3)).value).toBe(3);
+            expect(tree.lub(new KeyThing(4)).value).toBe(5);
+            expect(tree.lub(new KeyThing(5)).value).toBe(5);
+            expect(tree.lub(new KeyThing(6)).value).toBe(8);
+            expect(tree.lub(new KeyThing(7)).value).toBe(8);
+            expect(tree.lub(new KeyThing(8)).value).toBe(8);
+            expect(tree.lub(new KeyThing(9)).value).toBe(KeyThing.HIGHEST.value);
+        });
+    });
 });
 
 
@@ -304,14 +353,14 @@ describe("debug", function () {
     describe("insert", function () {
         describe("seven node permutation", function () {
             it('[1, 2, 3, 4, 5, 6, 7]', function () {
-                const tree = new RBTree<KeyThing, number>(new KeyThing(0), -1, keycmp);
+                const tree = new RBTree<KeyThing, number>(KeyThing.LOWEST, KeyThing.HIGHEST, -1, keycmp);
                 expectInvariants(tree);
 
                 const head = tree.head;
                 const z = tree.z;
 
                 // The tree is currently empty.
-                expect(head.key.value).toBe(0);
+                expect(head.key.value).toBe(KeyThing.LOWEST.value);
                 expect(black(head)).toBeTruthy();
                 expect(head.l.key).toBe(z.key);
                 expect(head.r.key).toBe(z.key);
@@ -321,7 +370,7 @@ describe("debug", function () {
 
                 expect(black(n1)).toBeTruthy();
 
-                expect(head.key.value).toBe(0);
+                expect(head.key.value).toBe(KeyThing.LOWEST.value);
                 expect(head.l.key).toBe(z.key);
                 expect(head.r.key.value).toBe(1);
                 expect(tree.root.key.value).toBe(1);

@@ -54,6 +54,14 @@ export class RBTree<K, V> {
      */
     readonly z: RBNode<K, V>;
     /**
+     * 
+     */
+    readonly highKey: K;
+    /**
+     * 
+     */
+    readonly lowKey: K;
+    /**
      * The root property is the top level node in the tree.
      */
     root: RBNode<K, V>;
@@ -79,10 +87,11 @@ export class RBTree<K, V> {
      * so that the first insert becomes the root (head.r).
      *
      * @param lowKey A key that is smaller than all expected keys.
+     * @param highKey A key that is larger than all expected keys.
      * @param nilValue The value returned when a search is not successful.
      * @param comp The comparator used for comparing keys.
      */
-    constructor(lowKey: K, nilValue: V, comp: Comparator<K>);
+    constructor(lowKey: K, highKey: K, nilValue: V, comp: Comparator<K>);
     /**
      * Inserts a (key, value) pair into the tree.
      */

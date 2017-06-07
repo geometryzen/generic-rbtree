@@ -25,11 +25,13 @@ export class RBTree<K, V> {
      * so that the first insert becomes the root (head.r).
      *
      * @param lowKey A key that is smaller than all expected keys.
+     * @param highKey A key that is larger than all expected keys.
      * @param nilValue The value to return when a search is not successful.
      * @param comp The comparator used for comparing keys.
      */
-    constructor(lowKey: K, nilValue: V, private comp: Comparator<K>) {
-        const z = new RBNode<K, V>(lowKey, nilValue);
+    constructor(lowKey: K, public readonly highKey: K, nilValue: V, private comp: Comparator<K>) {
+        // Notice that z does not have a key because it has to be less than and greater than every other key.
+        const z = new RBNode<K, V>(<any>null, nilValue);
         this.head = new RBNode<K, V>(lowKey, nilValue);
         // Head left is never used or changed so we'll store the tail node there.
         this.head.l = z;
@@ -55,9 +57,20 @@ export class RBTree<K, V> {
         return this.head.l;
     }
 
+    get lowKey(): K {
+        return this.head.key;
+    }
+
+    /**
+     * Legal means that is greater than the key stored in the head node.
+     * The key does not have to exist.
+     */
     private assertLegalKey(key: K, comp: Comparator<K>): void {
-        if (comp(key, this.head.key) <= 0) {
-            throw new Error(`key, ${key}, must be greater than the head key, ${this.head.key}.`);
+        if (comp(key, this.lowKey) <= 0) {
+            throw new Error(`key, ${key}, must be greater than the low key, ${this.lowKey}.`);
+        }
+        if (comp(key, this.highKey) >= 0) {
+            throw new Error(`key, ${key}, must be less than the high key, ${this.highKey}.`);
         }
     }
 
@@ -76,6 +89,28 @@ export class RBTree<K, V> {
         // Update the count of nodes inserted.
         this.N += 1;
         return n;
+    }
+
+    /**
+     * Greatest Lower Bound of a key.
+     * Returns key if it exists, or the next lowest key.
+     * Returns the low key value if there is no smaller key in the tree.
+     */
+    glb(key: K): K {
+        const comp = this.comp;
+        this.assertLegalKey(key, comp);
+        return glb(this, this.root, key, comp);
+    }
+
+    /**
+     * Least Upper Bound of a key.
+     * Returns key if it exists, or the next highest key.
+     * Returns the high key value if there is no greater key in the tree.
+     */
+    lub(key: K): K {
+        const comp = this.comp;
+        this.assertLegalKey(key, comp);
+        return lub(this, this.root, key, comp);
     }
 
     /**
@@ -423,4 +458,65 @@ function rbInsertFixup<K, V>(tree: RBTree<K, V>, n: RBNode<K, V>): void {
         }
     }
     tree.root.flag = false;
+}
+
+/**
+ * Recursive implementation to compute the Greatest Lower Bound.
+ * The largest key such that glb <= key.
+ */
+function glb<K, V>(tree: RBTree<K, V>, node: RBNode<K, V>, key: K, comp: Comparator<K>): K {
+    if (node === tree.z) {
+        return tree.lowKey;
+    }
+    else if (comp(key, node.key) >= 0) {
+        // The node key is a valid lower bound, but may not be the greatest.
+        // Take the right link in search of larger keys.
+        return max(node.key, glb(tree, node.r, key, comp), comp);
+    }
+    else {
+        // Take the left link in search of smaller keys.
+        return glb(tree, node.l, key, comp);
+    }
+}
+
+/**
+ * Recursive implementation to compute the Least Upper Bound.
+ * The smallest key such that key <= lub.
+ */
+function lub<K, V>(tree: RBTree<K, V>, node: RBNode<K, V>, key: K, comp: Comparator<K>): K {
+    if (node === tree.z) {
+        return tree.highKey;
+    }
+    else if (comp(key, node.key) <= 0) {
+        // The node key is a valid upper bound, but may not be the least.
+        return min(node.key, lub(tree, node.l, key, comp), comp);
+    }
+    else {
+        // Take the right link in search of bigger keys.
+        return lub(tree, node.r, key, comp);
+    }
+}
+
+function max<K>(a: K, b: K, comp: Comparator<K>): K {
+    if (comp(a, b) > 0) {
+        return a;
+    }
+    else if (comp(a, b) < 0) {
+        return b;
+    }
+    else {
+        return a;
+    }
+}
+
+function min<K>(a: K, b: K, comp: Comparator<K>): K {
+    if (comp(a, b) < 0) {
+        return a;
+    }
+    else if (comp(a, b) > 0) {
+        return b;
+    }
+    else {
+        return a;
+    }
 }

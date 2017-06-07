@@ -49,16 +49,19 @@ var RBTree = (function () {
      * so that the first insert becomes the root (head.r).
      *
      * @param lowKey A key that is smaller than all expected keys.
+     * @param highKey A key that is larger than all expected keys.
      * @param nilValue The value to return when a search is not successful.
      * @param comp The comparator used for comparing keys.
      */
-    function RBTree(lowKey, nilValue, comp) {
+    function RBTree(lowKey, highKey, nilValue, comp) {
+        this.highKey = highKey;
         this.comp = comp;
         /**
          * The number of keys inserted.
          */
         this.N = 0;
-        var z = new RBNode(lowKey, nilValue);
+        // Notice that z does not have a key because it has to be less than and greater than every other key.
+        var z = new RBNode(null, nilValue);
         this.head = new RBNode(lowKey, nilValue);
         // Head left is never used or changed so we'll store the tail node there.
         this.head.l = z;
@@ -88,9 +91,23 @@ var RBTree = (function () {
         enumerable: true,
         configurable: true
     });
+    Object.defineProperty(RBTree.prototype, "lowKey", {
+        get: function () {
+            return this.head.key;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Legal means that is greater than the key stored in the head node.
+     * The key does not have to exist.
+     */
     RBTree.prototype.assertLegalKey = function (key, comp) {
-        if (comp(key, this.head.key) <= 0) {
-            throw new Error("key, " + key + ", must be greater than the head key, " + this.head.key + ".");
+        if (comp(key, this.lowKey) <= 0) {
+            throw new Error("key, " + key + ", must be greater than the low key, " + this.lowKey + ".");
+        }
+        if (comp(key, this.highKey) >= 0) {
+            throw new Error("key, " + key + ", must be less than the high key, " + this.highKey + ".");
         }
     };
     /**
@@ -105,6 +122,26 @@ var RBTree = (function () {
         // Update the count of nodes inserted.
         this.N += 1;
         return n;
+    };
+    /**
+     * Greatest Lower Bound of a key.
+     * Returns key if it exists, or the next lowest key.
+     * Returns the low key value if there is no smaller key in the tree.
+     */
+    RBTree.prototype.glb = function (key) {
+        var comp = this.comp;
+        this.assertLegalKey(key, comp);
+        return glb(this, this.root, key, comp);
+    };
+    /**
+     * Least Upper Bound of a key.
+     * Returns key if it exists, or the next highest key.
+     * Returns the high key value if there is no greater key in the tree.
+     */
+    RBTree.prototype.lub = function (key) {
+        var comp = this.comp;
+        this.assertLegalKey(key, comp);
+        return lub(this, this.root, key, comp);
     };
     /**
      *
@@ -468,6 +505,63 @@ function rbInsertFixup(tree, n) {
         }
     }
     tree.root.flag = false;
+}
+/**
+ * Recursive implementation to compute the Greatest Lower Bound.
+ * The largest key such that glb <= key.
+ */
+function glb(tree, node, key, comp) {
+    if (node === tree.z) {
+        return tree.lowKey;
+    }
+    else if (comp(key, node.key) >= 0) {
+        // The node key is a valid lower bound, but may not be the greatest.
+        // Take the right link in search of larger keys.
+        return max(node.key, glb(tree, node.r, key, comp), comp);
+    }
+    else {
+        // Take the left link in search of smaller keys.
+        return glb(tree, node.l, key, comp);
+    }
+}
+/**
+ * Recursive implementation to compute the Least Upper Bound.
+ * The smallest key such that key <= lub.
+ */
+function lub(tree, node, key, comp) {
+    if (node === tree.z) {
+        return tree.highKey;
+    }
+    else if (comp(key, node.key) <= 0) {
+        // The node key is a valid upper bound, but may not be the least.
+        return min(node.key, lub(tree, node.l, key, comp), comp);
+    }
+    else {
+        // Take the right link in search of bigger keys.
+        return lub(tree, node.r, key, comp);
+    }
+}
+function max(a, b, comp) {
+    if (comp(a, b) > 0) {
+        return a;
+    }
+    else if (comp(a, b) < 0) {
+        return b;
+    }
+    else {
+        return a;
+    }
+}
+function min(a, b, comp) {
+    if (comp(a, b) < 0) {
+        return a;
+    }
+    else if (comp(a, b) > 0) {
+        return b;
+    }
+    else {
+        return a;
+    }
 }
 
 exports.RBNode = RBNode;

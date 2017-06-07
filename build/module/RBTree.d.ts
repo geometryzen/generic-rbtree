@@ -3,6 +3,7 @@ export interface Comparator<K> {
     (a: K, b: K): (-1 | 1 | 0);
 }
 export declare class RBTree<K, V> {
+    readonly highKey: K;
     private comp;
     /**
      * The "head" node is provided to make insertion easier.
@@ -23,10 +24,11 @@ export declare class RBTree<K, V> {
      * so that the first insert becomes the root (head.r).
      *
      * @param lowKey A key that is smaller than all expected keys.
+     * @param highKey A key that is larger than all expected keys.
      * @param nilValue The value to return when a search is not successful.
      * @param comp The comparator used for comparing keys.
      */
-    constructor(lowKey: K, nilValue: V, comp: Comparator<K>);
+    constructor(lowKey: K, highKey: K, nilValue: V, comp: Comparator<K>);
     root: RBNode<K, V>;
     /**
      * The "tail" node.
@@ -34,11 +36,28 @@ export declare class RBTree<K, V> {
      * All searches will result in a node, but misses will return the tail node.
      */
     readonly z: RBNode<K, V>;
+    readonly lowKey: K;
+    /**
+     * Legal means that is greater than the key stored in the head node.
+     * The key does not have to exist.
+     */
     private assertLegalKey(key, comp);
     /**
      *
      */
     insert(key: K, value: V): RBNode<K, V>;
+    /**
+     * Greatest Lower Bound of a key.
+     * Returns key if it exists, or the next lowest key.
+     * Returns the low key value if there is no smaller key in the tree.
+     */
+    glb(key: K): K;
+    /**
+     * Least Upper Bound of a key.
+     * Returns key if it exists, or the next highest key.
+     * Returns the high key value if there is no greater key in the tree.
+     */
+    lub(key: K): K;
     /**
      *
      */

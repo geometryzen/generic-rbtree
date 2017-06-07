@@ -1,2 +1,3 @@
 # generic-rbtree
-A Red-black Tree with a generic interface.
+
+A Red-Black Tree with a generic interface for TypeScript.

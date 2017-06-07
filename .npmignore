@@ -1,0 +1,17 @@
+.nyc_output
+.vscode
+/coverage
+/node_modules
+/src
+/test
+/typings
+.gitignore
+.npmignore
+.settings
+.travis.yml
+CONTRIBUTING.md
+rollup.config.js
+tsconfig.json
+tsconfig.main.json
+tsconfig.module.json
+tslint.json

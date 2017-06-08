@@ -37,6 +37,15 @@ function black<K, V>(node: RBNode<K, V>): boolean {
     return !node.flag;
 }
 
+function key<V>(node: RBNode<KeyThing, V> | null): number | null {
+    if (node) {
+        return node.key.value;
+    }
+    else {
+        return null;
+    }
+}
+
 function expectInvariants<K, V>(tree: RBTree<K, V>): void {
     expect(tree.heightInvariant).toBe(true, `The height invariant is being violated for the tree with root ${tree.root.key}`);
     expect(tree.colorInvariant).toBe(true, `The color invariant is being violated for the tree with root ${tree.root.key}`);
@@ -313,16 +322,16 @@ describe("RBTree", function () {
             tree.insert(new KeyThing(5), ValThing.random());
             tree.insert(new KeyThing(8), ValThing.random());
 
-            expect(tree.glb(new KeyThing(0)).value).toBe(KeyThing.LOWEST.value);
-            expect(tree.glb(new KeyThing(1)).value).toBe(KeyThing.LOWEST.value);
-            expect(tree.glb(new KeyThing(2)).value).toBe(2);
-            expect(tree.glb(new KeyThing(3)).value).toBe(3);
-            expect(tree.glb(new KeyThing(4)).value).toBe(3);
-            expect(tree.glb(new KeyThing(5)).value).toBe(5);
-            expect(tree.glb(new KeyThing(6)).value).toBe(5);
-            expect(tree.glb(new KeyThing(7)).value).toBe(5);
-            expect(tree.glb(new KeyThing(8)).value).toBe(8);
-            expect(tree.glb(new KeyThing(9)).value).toBe(8);
+            expect(key(tree.glb(new KeyThing(0)))).toBeNull();
+            expect(key(tree.glb(new KeyThing(1)))).toBeNull();
+            expect(key(tree.glb(new KeyThing(2)))).toBe(2);
+            expect(key(tree.glb(new KeyThing(3)))).toBe(3);
+            expect(key(tree.glb(new KeyThing(4)))).toBe(3);
+            expect(key(tree.glb(new KeyThing(5)))).toBe(5);
+            expect(key(tree.glb(new KeyThing(6)))).toBe(5);
+            expect(key(tree.glb(new KeyThing(7)))).toBe(5);
+            expect(key(tree.glb(new KeyThing(8)))).toBe(8);
+            expect(key(tree.glb(new KeyThing(9)))).toBe(8);
         });
     });
     describe("lub - Least Upper Bound", function () {
@@ -334,16 +343,16 @@ describe("RBTree", function () {
             tree.insert(new KeyThing(5), ValThing.random());
             tree.insert(new KeyThing(8), ValThing.random());
 
-            expect(tree.lub(new KeyThing(0)).value).toBe(2);
-            expect(tree.lub(new KeyThing(1)).value).toBe(2);
-            expect(tree.lub(new KeyThing(2)).value).toBe(2);
-            expect(tree.lub(new KeyThing(3)).value).toBe(3);
-            expect(tree.lub(new KeyThing(4)).value).toBe(5);
-            expect(tree.lub(new KeyThing(5)).value).toBe(5);
-            expect(tree.lub(new KeyThing(6)).value).toBe(8);
-            expect(tree.lub(new KeyThing(7)).value).toBe(8);
-            expect(tree.lub(new KeyThing(8)).value).toBe(8);
-            expect(tree.lub(new KeyThing(9)).value).toBe(KeyThing.HIGHEST.value);
+            expect(key(tree.lub(new KeyThing(0)))).toBe(2);
+            expect(key(tree.lub(new KeyThing(1)))).toBe(2);
+            expect(key(tree.lub(new KeyThing(2)))).toBe(2);
+            expect(key(tree.lub(new KeyThing(3)))).toBe(3);
+            expect(key(tree.lub(new KeyThing(4)))).toBe(5);
+            expect(key(tree.lub(new KeyThing(5)))).toBe(5);
+            expect(key(tree.lub(new KeyThing(6)))).toBe(8);
+            expect(key(tree.lub(new KeyThing(7)))).toBe(8);
+            expect(key(tree.lub(new KeyThing(8)))).toBe(8);
+            expect(key(tree.lub(new KeyThing(9)))).toBeNull();
         });
     });
 });

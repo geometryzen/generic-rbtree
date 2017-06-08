@@ -1,6 +1,6 @@
 {
   "name": "generic-rbtree",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A Red-Black Tree with a generic interface for TypeScript",
   "author": {
     "name": "David Geo Holmes",
@@ -9,7 +9,7 @@
   "browser": "./build/browser/index.js",
   "main": "./build/main/index.js",
   "module": "./build/module/index.js",
-  "types": "./build/browser/index.d.ts",
+  "types": "./build/main/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git://github.com/geometryzen/generic-rbtree.git"

@@ -18,6 +18,8 @@ export declare class RBTree<K, V> {
      * The number of keys inserted.
      */
     N: number;
+    private highNode;
+    private lowNode;
     /**
      * Initializes an RBTree.
      * It is important to define a key that is smaller than all expected keys
@@ -48,16 +50,16 @@ export declare class RBTree<K, V> {
     insert(key: K, value: V): RBNode<K, V>;
     /**
      * Greatest Lower Bound of a key.
-     * Returns key if it exists, or the next lowest key.
-     * Returns the low key value if there is no smaller key in the tree.
+     * Returns the node corresponding to the key if it exists, or the next lowest key.
+     * Returns null if there is no smaller key in the tree.
      */
-    glb(key: K): K;
+    glb(key: K): RBNode<K, V> | null;
     /**
      * Least Upper Bound of a key.
-     * Returns key if it exists, or the next highest key.
-     * Returns the high key value if there is no greater key in the tree.
+     * Returns the node corresponding to the key if it exists, or the next highest key.
+     * Returns null if there is no greater key in the tree.
      */
-    lub(key: K): K;
+    lub(key: K): RBNode<K, V> | null;
     /**
      *
      */

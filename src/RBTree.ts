@@ -19,6 +19,9 @@ export class RBTree<K, V> {
      */
     public N = 0;
 
+    private highNode: RBNode<K, V>;
+    private lowNode: RBNode<K, V>;
+
     /**
      * Initializes an RBTree.
      * It is important to define a key that is smaller than all expected keys
@@ -30,6 +33,8 @@ export class RBTree<K, V> {
      * @param comp The comparator used for comparing keys.
      */
     constructor(lowKey: K, public readonly highKey: K, nilValue: V, private comp: Comparator<K>) {
+        this.lowNode = new RBNode<K, V>(lowKey, nilValue);
+        this.highNode = new RBNode<K, V>(highKey, nilValue);
         // Notice that z does not have a key because it has to be less than and greater than every other key.
         const z = new RBNode<K, V>(<any>null, nilValue);
         this.head = new RBNode<K, V>(lowKey, nilValue);
@@ -93,24 +98,38 @@ export class RBTree<K, V> {
 
     /**
      * Greatest Lower Bound of a key.
-     * Returns key if it exists, or the next lowest key.
-     * Returns the low key value if there is no smaller key in the tree.
+     * Returns the node corresponding to the key if it exists, or the next lowest key.
+     * Returns null if there is no smaller key in the tree.
      */
-    glb(key: K): K {
+    glb(key: K): RBNode<K, V> | null {
         const comp = this.comp;
         this.assertLegalKey(key, comp);
-        return glb(this, this.root, key, comp);
+        const low = this.lowNode;
+        const node = glb(this, this.root, key, comp, low);
+        if (node !== low) {
+            return node;
+        }
+        else {
+            return null;
+        }
     }
 
     /**
      * Least Upper Bound of a key.
-     * Returns key if it exists, or the next highest key.
-     * Returns the high key value if there is no greater key in the tree.
+     * Returns the node corresponding to the key if it exists, or the next highest key.
+     * Returns null if there is no greater key in the tree.
      */
-    lub(key: K): K {
+    lub(key: K): RBNode<K, V> | null {
         const comp = this.comp;
         this.assertLegalKey(key, comp);
-        return lub(this, this.root, key, comp);
+        const high = this.highNode;
+        const node = lub(this, this.root, key, comp, high);
+        if (node !== high) {
+            return node;
+        }
+        else {
+            return null;
+        }
     }
 
     /**
@@ -464,18 +483,18 @@ function rbInsertFixup<K, V>(tree: RBTree<K, V>, n: RBNode<K, V>): void {
  * Recursive implementation to compute the Greatest Lower Bound.
  * The largest key such that glb <= key.
  */
-function glb<K, V>(tree: RBTree<K, V>, node: RBNode<K, V>, key: K, comp: Comparator<K>): K {
+function glb<K, V>(tree: RBTree<K, V>, node: RBNode<K, V>, key: K, comp: Comparator<K>, low: RBNode<K, V>): RBNode<K, V> {
     if (node === tree.z) {
-        return tree.lowKey;
+        return low;
     }
     else if (comp(key, node.key) >= 0) {
         // The node key is a valid lower bound, but may not be the greatest.
         // Take the right link in search of larger keys.
-        return max(node.key, glb(tree, node.r, key, comp), comp);
+        return maxNode(node, glb(tree, node.r, key, comp, low), comp);
     }
     else {
         // Take the left link in search of smaller keys.
-        return glb(tree, node.l, key, comp);
+        return glb(tree, node.l, key, comp, low);
     }
 }
 
@@ -483,25 +502,25 @@ function glb<K, V>(tree: RBTree<K, V>, node: RBNode<K, V>, key: K, comp: Compara
  * Recursive implementation to compute the Least Upper Bound.
  * The smallest key such that key <= lub.
  */
-function lub<K, V>(tree: RBTree<K, V>, node: RBNode<K, V>, key: K, comp: Comparator<K>): K {
+function lub<K, V>(tree: RBTree<K, V>, node: RBNode<K, V>, key: K, comp: Comparator<K>, high: RBNode<K, V>): RBNode<K, V> {
     if (node === tree.z) {
-        return tree.highKey;
+        return high;
     }
     else if (comp(key, node.key) <= 0) {
         // The node key is a valid upper bound, but may not be the least.
-        return min(node.key, lub(tree, node.l, key, comp), comp);
+        return minNode(node, lub(tree, node.l, key, comp, high), comp);
     }
     else {
         // Take the right link in search of bigger keys.
-        return lub(tree, node.r, key, comp);
+        return lub(tree, node.r, key, comp, high);
     }
 }
 
-function max<K>(a: K, b: K, comp: Comparator<K>): K {
-    if (comp(a, b) > 0) {
+function maxNode<K, V>(a: RBNode<K, V>, b: RBNode<K, V>, comp: Comparator<K>): RBNode<K, V> {
+    if (comp(a.key, b.key) > 0) {
         return a;
     }
-    else if (comp(a, b) < 0) {
+    else if (comp(a.key, b.key) < 0) {
         return b;
     }
     else {
@@ -509,11 +528,11 @@ function max<K>(a: K, b: K, comp: Comparator<K>): K {
     }
 }
 
-function min<K>(a: K, b: K, comp: Comparator<K>): K {
-    if (comp(a, b) < 0) {
+function minNode<K, V>(a: RBNode<K, V>, b: RBNode<K, V>, comp: Comparator<K>): RBNode<K, V> {
+    if (comp(a.key, b.key) < 0) {
         return a;
     }
-    else if (comp(a, b) > 0) {
+    else if (comp(a.key, b.key) > 0) {
         return b;
     }
     else {

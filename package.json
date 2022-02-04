@@ -38,7 +38,7 @@
   "scripts": {
     "info": "npm-scripts-info",
     "build": "trash build && tsc -p tsconfig.main.json && tsc -p tsconfig.module.json && yarn build:browser",
-    "build:browser": "rollup --config rollup.config.js --format umd --name 'EIGHT' --output build/browser/index.js && sorcery -i build/browser/index.js && cp src/index.d.ts build/browser",
+    "build:browser": "rollup --config rollup.config.js --format umd --name 'genericRbtree' --output build/browser/index.js && sorcery -i build/browser/index.js && cp src/index.d.ts build/browser",
     "lint": "tslint src/**/*.ts",
     "unit": "trash test && tsc -p tsconfig.json && karma start",
     "test": "yarn lint && yarn unit && nyc check-coverage --lines 40 --functions 30 --branches 20",
@@ -74,7 +74,7 @@
     "core-js": "^2.4.1",
     "cpx": "^1.5.0",
     "es6-module-loader": "^0.17.11",
-    "gh-pages": "^0.12.0",
+    "gh-pages": "^3.2.3",
     "hash.js": "^1.0.3",
     "jasmine-core": "^2.6.2",
     "karma": "^1.7.0",
@@ -102,10 +102,10 @@
     "trash-cli": "^1.4.0",
     "tslint": "^5.3.2",
     "tslint-config-standard": "^5.0.2",
-    "typedoc": "^0.7.1",
-    "typescript": "^2.3.3"
+    "typedoc": "^0.22.11",
+    "typescript": "^4.5.5"
   },
   "dependencies": {
-    "tslib": "^1.7.1"
+    "tslib": "^2.3.1"
   }
 }

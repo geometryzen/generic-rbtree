@@ -36,7 +36,7 @@ export class RBTree<K, V> {
         this.lowNode = new RBNode<K, V>(lowKey, nilValue);
         this.highNode = new RBNode<K, V>(highKey, nilValue);
         // Notice that z does not have a key because it has to be less than and greater than every other key.
-        const z = new RBNode<K, V>(<any>null, nilValue);
+        const z = new RBNode<K, V>(null as unknown as K, nilValue);
         this.head = new RBNode<K, V>(lowKey, nilValue);
         // Head left is never used or changed so we'll store the tail node there.
         this.head.l = z;
